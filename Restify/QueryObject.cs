@@ -5,7 +5,7 @@ using System.Text;
 using System.Reflection;
 using Restify.Attributes;
 
-namespace Restless {
+namespace Restify {
     public abstract class QueryObject {
         internal string ToQueryString() { //non-encoded query string
             StringBuilder sb = new StringBuilder();

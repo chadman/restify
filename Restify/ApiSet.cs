@@ -5,11 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using RestSharp;
 using RestSharp.Authenticators;
-using Restless;
+using Restify;
 using Restify.Exceptions;
 using Restify.Extensions;
 
-namespace Restless {
+namespace Restify {
     public abstract class ApiSet<T> where T : new() {
 
         #region Properties

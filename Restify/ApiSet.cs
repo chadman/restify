@@ -73,6 +73,9 @@ namespace Restify {
 
         #region Actions
         public virtual List<T> List() {
+            if (string.IsNullOrEmpty(this.ListUrl)) {
+                throw new NotImplementedException("The property ListUrl has no value on the ApiSet.");
+            }
             var request = new RestSharp.RestRequest(Method.GET);
             request.Resource = this.ListUrl;
             var item = ExecuteListRequest(request);
@@ -81,6 +84,9 @@ namespace Restify {
         }
 
         public virtual List<T> List(string parentID) {
+            if (string.IsNullOrEmpty(this.GetChildListUrl)) {
+                throw new NotImplementedException("The property GetChildListUrl has no value on the ApiSet.");
+            }
             var request = new RestSharp.RestRequest(Method.GET);
             request.Resource = string.Format(this.GetChildListUrl, parentID);
             var item = ExecuteListRequest(request);
@@ -89,6 +95,9 @@ namespace Restify {
         }
 
         public virtual T Get(string id) {
+            if (string.IsNullOrEmpty(this.GetUrl)) {
+                throw new NotImplementedException("The property GetUrl has no value on the ApiSet.");
+            }
             var request = new RestSharp.RestRequest(Method.GET);
             request.Resource = string.Format(this.GetUrl, id);
             var item = ExecuteRequest(request);
@@ -103,6 +112,9 @@ namespace Restify {
         /// <param name="id">The child ID</param>
         /// <returns>Returns a generic object (T)</returns>
         public virtual T Get(string parentID, string id) {
+            if (string.IsNullOrEmpty(this.GetChildUrl)) {
+                throw new NotImplementedException("The property GetChildUrl has no value on the ApiSet.");
+            }
             var request = new RestSharp.RestRequest(Method.GET);
             request.Resource = string.Format(this.GetChildUrl, parentID, id);
             var item = ExecuteRequest(request);
@@ -119,6 +131,9 @@ namespace Restify {
         }
 
         public virtual S Search<S>(QueryObject qo) where S : new() {
+            if (string.IsNullOrEmpty(this.SearchUrl)) {
+                throw new NotImplementedException("The property SearchUrl has no value on the ApiSet. In order to call Search, populate the SearchUrl property.");
+            }
             var request = new RestSharp.RestRequest(Method.GET);
             request.Resource = this.SearchUrl;
             Dictionary<string, string> parms = qo.ToDictionary();
@@ -133,7 +148,26 @@ namespace Restify {
         }
 
         public virtual T Create(T entity) {
+            if (string.IsNullOrEmpty(this.CreateUrl)) {
+                throw new NotImplementedException("The property CreateUrl has no value on the ApiSet. In order to call Create, populate the CreateUrl property.");
+            }
             var request = new RestSharp.RestRequest(Method.POST);
+            request.Timeout = 20000;
+            request.Resource = this.CreateUrl;
+            request.AddParameter("application/xml", entity.ToXml(), ParameterType.RequestBody);
+
+            var item = ExecuteRequest(request);
+            return item.Data;
+        }
+
+        public virtual T Create(T entity, out string requestXml) {
+            if (string.IsNullOrEmpty(this.CreateUrl)) {
+                throw new NotImplementedException("The property CreateUrl has no value on the ApiSet. In order to call Create, populate the CreateUrl property.");
+            }
+
+            requestXml = entity.ToXml();
+            var request = new RestSharp.RestRequest(Method.POST);
+            request.Timeout = 20000;
             request.Resource = this.CreateUrl;
             request.AddParameter("application/xml", entity.ToXml(), ParameterType.RequestBody);
 
@@ -142,6 +176,23 @@ namespace Restify {
         }
 
         public virtual T Update(T entity, string id) {
+            if (string.IsNullOrEmpty(this.EditUrl)) {
+                throw new NotImplementedException("The property EditUrl has no value on the ApiSet. In order to call Update, populate the EditUrl property.");
+            }
+            var request = new RestSharp.RestRequest(Method.PUT);
+            request.Resource = string.Format(this.EditUrl, id);
+            request.AddParameter("application/xml", entity.ToXml(), ParameterType.RequestBody);
+
+            var item = ExecuteRequest(request);
+            return item.Data;
+        }
+
+        public virtual T Update(T entity, string id, out string requestXml) {
+            if (string.IsNullOrEmpty(this.EditUrl)) {
+                throw new NotImplementedException("The property EditUrl has no value on the ApiSet. In order to call Update, populate the EditUrl property.");
+            }
+
+            requestXml = entity.ToXml();
             var request = new RestSharp.RestRequest(Method.PUT);
             request.Resource = string.Format(this.EditUrl, id);
             request.AddParameter("application/xml", entity.ToXml(), ParameterType.RequestBody);
@@ -151,6 +202,9 @@ namespace Restify {
         }
 
         public virtual bool Delete(string id) {
+            if (string.IsNullOrEmpty(this.EditUrl)) {
+                throw new NotImplementedException("The property EditUrl has no value on the ApiSet. In order to call Delete, populate the EditUrl property.");
+            }
             var request = new RestSharp.RestRequest(Method.DELETE);
             request.Resource = string.Format(this.EditUrl, id);
             var item = ExecuteRequest(request);
@@ -176,6 +230,11 @@ namespace Restify {
                 exception.RequestUrl = response.ResponseUri.AbsoluteUri;
 
                 throw exception;
+            }
+
+            if (!string.IsNullOrEmpty(response.ErrorMessage)) {
+                ApiAccessException ex = new ApiAccessException(response.ErrorMessage);
+                throw ex;
             }
 
             return response;

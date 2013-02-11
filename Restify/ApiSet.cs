@@ -11,7 +11,6 @@ using Restify.Extensions;
 
 namespace Restify {
     public abstract class ApiSet<T> where T : new() {
-
         #region Properties
         OAuthTicket _ticket { get; set; }
         string _baseUrl { get; set; }
@@ -147,6 +146,19 @@ namespace Restify {
             return list.Data;
         }
 
+        public virtual bool Create(byte[] stream) {
+            if (string.IsNullOrEmpty(this.CreateUrl)) {
+                throw new NotImplementedException("The property CreateUrl has no value on the ApiSet. In order to call Create, populate the CreateUrl property.");
+            }
+
+            var request = new RestSharp.RestRequest(Method.POST);
+            request.Resource = this.CreateUrl;
+            request.AddFile("stream", stream, string.Empty);
+
+            var item = ExecuteRequest(request);
+            return (int)item.StatusCode < 300;
+        }
+
         public virtual T Create(T entity) {
             if (string.IsNullOrEmpty(this.CreateUrl)) {
                 throw new NotImplementedException("The property CreateUrl has no value on the ApiSet. In order to call Create, populate the CreateUrl property.");
@@ -173,6 +185,19 @@ namespace Restify {
 
             var item = ExecuteRequest(request);
             return item.Data;
+        }
+
+        public virtual bool Update(byte[] stream, string id) {
+            if (string.IsNullOrEmpty(this.EditUrl)) {
+                throw new NotImplementedException("The property EditUrl has no value on the ApiSet. In order to call Update, populate the EditUrl property.");
+            }
+
+            var request = new RestSharp.RestRequest(Method.PUT);
+            request.Resource = string.Format(this.EditUrl, id);
+            request.AddFile("stream", stream, string.Empty);
+
+            var item = ExecuteRequest(request);
+            return (int)item.StatusCode < 300;
         }
 
         public virtual T Update(T entity, string id) {
@@ -283,8 +308,6 @@ namespace Restify {
 
             return response;
         }
-        #endregion Private Methods
-
-        
+        #endregion Private Methods 
     }
 }

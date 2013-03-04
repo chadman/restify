@@ -13,6 +13,8 @@ namespace Restify.Exceptions {
             string msg = string.Empty;
 
             msg = "test message";
+
+            string msg2 = "test message 2";
         }
 
         #region Properties

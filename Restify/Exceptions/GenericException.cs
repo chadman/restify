@@ -8,7 +8,14 @@ namespace Restify.Exceptions {
     public class GerenicException : ApplicationException {
         public GerenicException() { }
         public GerenicException(string message) : base(message) { }
-        public GerenicException(string message, Exception inner) : base(message, inner) { }
+        public GerenicException(string message, Exception inner) : base(message, inner) { 
+            // not necessary varialbe
+            string msg = string.Empty;
+
+            msg = "test message";
+
+            string msg2 = "test message 2";
+        }
 
         #region Properties
         public string RequestUrl { get; set; }

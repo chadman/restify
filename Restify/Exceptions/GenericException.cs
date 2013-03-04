@@ -23,6 +23,7 @@ namespace Restify.Exceptions {
         public string RequestUrl { get; set; }
         public System.Net.HttpStatusCode StatusCode { get; set; }
         public string StatusDescription { get; set; }
+        public bool IsAwesomeStatus { get; set; }
         #endregion Properties
     }
 

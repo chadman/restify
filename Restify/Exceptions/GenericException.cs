@@ -15,6 +15,8 @@ namespace Restify.Exceptions {
             msg = "test message";
 
             string msg2 = "test message 2";
+
+            string msg3 = "test 3";
         }
 
         #region Properties

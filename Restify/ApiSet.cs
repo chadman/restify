@@ -1,70 +1,61 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using RestSharp;
-using RestSharp.Authenticators;
-using Restify;
 using Restify.Exceptions;
 using Restify.Extensions;
+using RestSharp;
+using RestSharp.Authenticators;
 
 namespace Restify {
     public abstract class ApiSet<T> where T : new() {
         #region Properties
-        OAuthTicket _ticket { get; set; }
-        string _baseUrl { get; set; }
+        private readonly OAuthTicket _ticket;
+        private readonly string _baseUrl;
 
         /// <summary>
         /// The url for retrieving a specific entity. Call Get(string id) to use this property
         /// EX: /Customers/{0}
         /// </summary>
-        protected virtual string GetUrl { get; set; }
+        protected virtual string GetUrl { get { throw new NotImplementedException("The property GetUrl has no value on the ApiSet."); } }
 
         /// <summary>
         /// The url for retrieving all the elements when the entity is a child of another entity. Call List(string parentID) to use this property
         /// EX: /Customers/{0}/Orders
         /// </summary>
-        protected virtual string GetChildListUrl { get; set; }
+        protected virtual string GetChildListUrl { get { throw new NotImplementedException("The property GetChildListUrl has no value on the ApiSet."); } }
 
         /// <summary>
         /// The url for retrieving the entity when it is a child of another entity. Call Get(string parentID, string id)
         /// EX: /Customers/{0}/Orders{1}
         /// </summary>
-        protected virtual string GetChildUrl { get; set; }
-
-        /// <summary>
-        /// If none of the other url properties work, set this to anything. It does not assume any parameters. Call GetByUrl(string url) to user this property
-        /// </summary>
-        protected virtual string GetCustomUrl { get; set; }
+        protected virtual string GetChildUrl { get { throw new NotImplementedException("The property GetChildUrl has no value on the ApiSet."); } }
 
         /// <summary>
         /// The url used for creating a new entity
         /// EX: /Customers
         /// </summary>
-        protected virtual string CreateUrl { get; set; }
+        protected virtual string CreateUrl { get { throw new NotImplementedException("The property CreateUrl has no value on the ApiSet."); } }
 
         /// <summary>
         /// The url used for updating an existing entity
         /// EX: /Customers/{0}
         /// </summary>
-        protected virtual string EditUrl { get; set; }
+        protected virtual string EditUrl { get { throw new NotImplementedException("The property EditUrl has no value on the ApiSet."); } }
 
         /// <summary>
         /// The url for retrieving a lit of entities. Call List() to user this property
         /// EX: /Customer/
         /// </summary>
-        protected virtual string ListUrl { get; set; }
+        protected virtual string ListUrl { get { throw new NotImplementedException("The property ListUrl has no value on the ApiSet."); } }
 
         /// <summary>
-        /// The url
+        /// The url for searching for a list of entities
         /// </summary>
-        protected virtual string SearchUrl { get; set; }
+        protected virtual string SearchUrl { get { throw new NotImplementedException("The property SearchUrl has no value on the ApiSet."); } }
 
         #endregion Properties
 
         #region Constructor
-        public ApiSet(OAuthTicket ticket, string baseUrl) {
+        protected ApiSet(OAuthTicket ticket, string baseUrl) {
             _ticket = ticket;
             _baseUrl = baseUrl;
         }
@@ -72,33 +63,39 @@ namespace Restify {
 
         #region Actions
         public virtual List<T> List() {
-            if (string.IsNullOrEmpty(this.ListUrl)) {
+            if (string.IsNullOrWhiteSpace(ListUrl)) {
                 throw new NotImplementedException("The property ListUrl has no value on the ApiSet.");
             }
-            var request = new RestSharp.RestRequest(Method.GET);
-            request.Resource = this.ListUrl;
+
+            var request = new RestRequest(Method.GET) {
+                Resource = ListUrl
+            };
             var item = ExecuteListRequest(request);
 
             return item.Data;
         }
 
         public virtual List<T> List(string parentID) {
-            if (string.IsNullOrEmpty(this.GetChildListUrl)) {
+            if (string.IsNullOrWhiteSpace(GetChildListUrl)) {
                 throw new NotImplementedException("The property GetChildListUrl has no value on the ApiSet.");
             }
-            var request = new RestSharp.RestRequest(Method.GET);
-            request.Resource = string.Format(this.GetChildListUrl, parentID);
+
+            var request = new RestRequest(Method.GET) {
+                Resource = string.Format(GetChildListUrl, parentID)
+            };
             var item = ExecuteListRequest(request);
 
             return item.Data;
         }
 
         public virtual T Get(string id) {
-            if (string.IsNullOrEmpty(this.GetUrl)) {
+            if (string.IsNullOrWhiteSpace(GetUrl)) {
                 throw new NotImplementedException("The property GetUrl has no value on the ApiSet.");
             }
-            var request = new RestSharp.RestRequest(Method.GET);
-            request.Resource = string.Format(this.GetUrl, id);
+
+            var request = new RestRequest(Method.GET) {
+                Resource = string.Format(GetUrl, id)
+            };
             var item = ExecuteRequest(request);
 
             return item.Data;
@@ -111,48 +108,58 @@ namespace Restify {
         /// <param name="id">The child ID</param>
         /// <returns>Returns a generic object (T)</returns>
         public virtual T Get(string parentID, string id) {
-            if (string.IsNullOrEmpty(this.GetChildUrl)) {
+            if (string.IsNullOrWhiteSpace(GetChildUrl)) {
                 throw new NotImplementedException("The property GetChildUrl has no value on the ApiSet.");
             }
-            var request = new RestSharp.RestRequest(Method.GET);
-            request.Resource = string.Format(this.GetChildUrl, parentID, id);
+
+            var request = new RestRequest(Method.GET) {
+                Resource = string.Format(GetChildUrl, parentID, id)
+            };
             var item = ExecuteRequest(request);
 
             return item.Data;
         }
 
         public virtual T GetByUrl(string url) {
-            var request = new RestSharp.RestRequest(Method.GET);
-            request.Resource = url.Substring(_baseUrl.Length);
+            var request = new RestRequest(Method.GET) {
+                Resource = url.Substring(_baseUrl.Length)
+            };
             var item = ExecuteRequest(request);
 
             return item.Data;
         }
 
         public virtual S Search<S>(QueryObject qo) where S : new() {
-            if (string.IsNullOrEmpty(this.SearchUrl)) {
-                throw new NotImplementedException("The property SearchUrl has no value on the ApiSet. In order to call Search, populate the SearchUrl property.");
+            if (string.IsNullOrWhiteSpace(SearchUrl)) {
+                throw new NotImplementedException("The property SearchUrl has no value on the ApiSet.");
             }
-            var request = new RestSharp.RestRequest(Method.GET);
-            request.Resource = this.SearchUrl;
-            Dictionary<string, string> parms = qo.ToDictionary();
+
+            var request = new RestRequest(Method.GET) {
+                Resource = SearchUrl
+            };
 
             foreach (var pair in qo.ToDictionary()) {
                 request.AddParameter(pair.Key, pair.Value);
             }
 
             var list = ExecuteCustomRequest<S>(request);
-
             return list.Data;
         }
 
-        public virtual bool Create(byte[] stream) {
-            if (string.IsNullOrEmpty(this.CreateUrl)) {
-                throw new NotImplementedException("The property CreateUrl has no value on the ApiSet. In order to call Create, populate the CreateUrl property.");
+        public virtual bool Create(byte[] stream, string url = "") {
+            var targetUrl = url;
+
+            if (string.IsNullOrWhiteSpace(url)) {
+                if (string.IsNullOrWhiteSpace(CreateUrl)) {
+                    throw new NotImplementedException("The property CreateUrl has no value on the ApiSet.");
+                }
+
+                targetUrl = CreateUrl;
             }
 
-            var request = new RestSharp.RestRequest(Method.POST);
-            request.Resource = this.CreateUrl;
+            var request = new RestRequest(Method.POST) {
+                Resource = targetUrl
+            };
             request.AddFile("stream", stream, string.Empty);
 
             var item = ExecuteRequest(request);
@@ -160,12 +167,14 @@ namespace Restify {
         }
 
         public virtual T Create(T entity) {
-            if (string.IsNullOrEmpty(this.CreateUrl)) {
-                throw new NotImplementedException("The property CreateUrl has no value on the ApiSet. In order to call Create, populate the CreateUrl property.");
+            if (string.IsNullOrWhiteSpace(CreateUrl)) {
+                throw new NotImplementedException("The property CreateUrl has no value on the ApiSet.");
             }
-            var request = new RestSharp.RestRequest(Method.POST);
-            request.Timeout = 20000;
-            request.Resource = this.CreateUrl;
+
+            var request = new RestRequest(Method.POST) {
+                Timeout = 20000, 
+                Resource = CreateUrl
+            };
             request.AddParameter("application/xml", entity.ToXml(), ParameterType.RequestBody);
 
             var item = ExecuteRequest(request);
@@ -173,14 +182,15 @@ namespace Restify {
         }
 
         public virtual T Create(T entity, out string requestXml) {
-            if (string.IsNullOrEmpty(this.CreateUrl)) {
-                throw new NotImplementedException("The property CreateUrl has no value on the ApiSet. In order to call Create, populate the CreateUrl property.");
+            if (string.IsNullOrWhiteSpace(CreateUrl)) {
+                throw new NotImplementedException("The property CreateUrl has no value on the ApiSet.");
             }
 
             requestXml = entity.ToXml();
-            var request = new RestSharp.RestRequest(Method.POST);
-            request.Timeout = 20000;
-            request.Resource = this.CreateUrl;
+            var request = new RestRequest(Method.POST) {
+                Timeout = 20000, 
+                Resource = CreateUrl
+            };
             request.AddParameter("application/xml", entity.ToXml(), ParameterType.RequestBody);
 
             var item = ExecuteRequest(request);
@@ -188,12 +198,13 @@ namespace Restify {
         }
 
         public virtual bool Update(byte[] stream, string id) {
-            if (string.IsNullOrEmpty(this.EditUrl)) {
-                throw new NotImplementedException("The property EditUrl has no value on the ApiSet. In order to call Update, populate the EditUrl property.");
+            if (string.IsNullOrWhiteSpace(EditUrl)) {
+                throw new NotImplementedException("The property EditUrl has no value on the ApiSet.");
             }
 
-            var request = new RestSharp.RestRequest(Method.PUT);
-            request.Resource = string.Format(this.EditUrl, id);
+            var request = new RestRequest(Method.PUT) {
+                Resource = string.Format(EditUrl, id)
+            };
             request.AddFile("stream", stream, string.Empty);
 
             var item = ExecuteRequest(request);
@@ -201,11 +212,13 @@ namespace Restify {
         }
 
         public virtual T Update(T entity, string id) {
-            if (string.IsNullOrEmpty(this.EditUrl)) {
-                throw new NotImplementedException("The property EditUrl has no value on the ApiSet. In order to call Update, populate the EditUrl property.");
+            if (string.IsNullOrWhiteSpace(EditUrl)) {
+                throw new NotImplementedException("The property EditUrl has no value on the ApiSet.");
             }
-            var request = new RestSharp.RestRequest(Method.PUT);
-            request.Resource = string.Format(this.EditUrl, id);
+
+            var request = new RestRequest(Method.PUT) {
+                Resource = string.Format(EditUrl, id)
+            };
             request.AddParameter("application/xml", entity.ToXml(), ParameterType.RequestBody);
 
             var item = ExecuteRequest(request);
@@ -213,13 +226,14 @@ namespace Restify {
         }
 
         public virtual T Update(T entity, string id, out string requestXml) {
-            if (string.IsNullOrEmpty(this.EditUrl)) {
-                throw new NotImplementedException("The property EditUrl has no value on the ApiSet. In order to call Update, populate the EditUrl property.");
+            if (string.IsNullOrWhiteSpace(EditUrl)) {
+                throw new NotImplementedException("The property EditUrl has no value on the ApiSet.");
             }
 
             requestXml = entity.ToXml();
-            var request = new RestSharp.RestRequest(Method.PUT);
-            request.Resource = string.Format(this.EditUrl, id);
+            var request = new RestRequest(Method.PUT) {
+                Resource = string.Format(EditUrl, id)
+            };
             request.AddParameter("application/xml", entity.ToXml(), ParameterType.RequestBody);
 
             var item = ExecuteRequest(request);
@@ -227,20 +241,23 @@ namespace Restify {
         }
 
         public virtual bool Delete(string id) {
-            if (string.IsNullOrEmpty(this.EditUrl)) {
-                throw new NotImplementedException("The property EditUrl has no value on the ApiSet. In order to call Delete, populate the EditUrl property.");
+            if (string.IsNullOrWhiteSpace(EditUrl)) {
+                throw new NotImplementedException("The property EditUrl has no value on the ApiSet.");
             }
-            var request = new RestSharp.RestRequest(Method.DELETE);
-            request.Resource = string.Format(this.EditUrl, id);
+
+            var request = new RestRequest(Method.DELETE) {
+                Resource = string.Format(EditUrl, id)
+            };
             var item = ExecuteRequest(request);
             return (int)item.StatusCode < 300;
         }
         #endregion Actions
 
         #region Private Methods
-        private IRestResponse<T> ExecuteRequest(RestRequest request) {
-            var client = new RestSharp.RestClient();
-            client.BaseUrl = _baseUrl;
+        private IRestResponse<T> ExecuteRequest(IRestRequest request) {
+            var client = new RestClient {
+                BaseUrl = _baseUrl
+            };
             request.RequestFormat = DataFormat.Xml;
             request.AddHeader("Accept-Encoding", "gzip,deflate");
             request.AddHeader("Content-Type", "application/xml");
@@ -249,25 +266,24 @@ namespace Restify {
             var response = client.Execute<T>(request);
 
             if ((int)response.StatusCode > 300) {
-                ApiAccessException exception = new ApiAccessException(response.StatusDescription);
-                exception.StatusCode = response.StatusCode;
-                exception.StatusDescription = response.StatusDescription;
-                exception.RequestUrl = response.ResponseUri.AbsoluteUri;
-
-                throw exception;
+                throw new ApiAccessException(response.StatusDescription) {
+                    StatusCode = response.StatusCode, 
+                    StatusDescription = response.StatusDescription, 
+                    RequestUrl = response.ResponseUri.AbsoluteUri
+                };
             }
 
             if (!string.IsNullOrEmpty(response.ErrorMessage)) {
-                ApiAccessException ex = new ApiAccessException(response.ErrorMessage);
-                throw ex;
+                throw new ApiAccessException(response.ErrorMessage);
             }
 
             return response;
         }
 
-        private IRestResponse<S> ExecuteCustomRequest<S>(RestRequest request) where S : new() {
-            var client = new RestSharp.RestClient();
-            client.BaseUrl = _baseUrl;
+        private IRestResponse<S> ExecuteCustomRequest<S>(IRestRequest request) where S : new() {
+            var client = new RestClient {
+                BaseUrl = _baseUrl
+            };
             request.RequestFormat = DataFormat.Xml;
             request.AddHeader("Accept-Encoding", "gzip,deflate");
             request.AddHeader("Content-Type", "application/xml");
@@ -276,20 +292,20 @@ namespace Restify {
             var response = client.Execute<S>(request);
 
             if ((int)response.StatusCode > 300) {
-                ApiAccessException exception = new ApiAccessException(response.StatusDescription);
-                exception.StatusCode = response.StatusCode;
-                exception.StatusDescription = response.StatusDescription;
-                exception.RequestUrl = response.ResponseUri.AbsoluteUri;
-
-                throw exception;
+                throw new ApiAccessException(response.StatusDescription) {
+                    StatusCode = response.StatusCode, 
+                    StatusDescription = response.StatusDescription, 
+                    RequestUrl = response.ResponseUri.AbsoluteUri
+                };
             }
 
             return response;
         }
 
-        private IRestResponse<List<T>> ExecuteListRequest(RestRequest request) {
-            var client = new RestSharp.RestClient();
-            client.BaseUrl = _baseUrl;
+        private IRestResponse<List<T>> ExecuteListRequest(IRestRequest request) {
+            var client = new RestClient {
+                BaseUrl = _baseUrl
+            };
             request.RequestFormat = DataFormat.Xml;
             request.AddHeader("Accept-Encoding", "gzip,deflate");
             request.AddHeader("Content-Type", "application/xml");
@@ -298,12 +314,11 @@ namespace Restify {
             var response = client.Execute<List<T>>(request);
 
             if ((int)response.StatusCode > 300) {
-                ApiAccessException exception = new ApiAccessException(response.StatusDescription);
-                exception.StatusCode = response.StatusCode;
-                exception.StatusDescription = response.StatusDescription;
-                exception.RequestUrl = response.ResponseUri.AbsoluteUri;
-
-                throw exception;
+                throw new ApiAccessException(response.StatusDescription) {
+                    StatusCode = response.StatusCode, 
+                    StatusDescription = response.StatusDescription, 
+                    RequestUrl = response.ResponseUri.AbsoluteUri
+                };
             }
 
             return response;

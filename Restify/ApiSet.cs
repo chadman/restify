@@ -12,11 +12,6 @@ namespace Restify {
         private readonly string _baseUrl;
 
         /// <summary>
-        /// Exposes the base url for the api
-        /// </summary>
-        protected string BaseUrl { get { return _baseUrl; } }
-
-        /// <summary>
         /// The url for retrieving a specific entity. Call Get(string id) to use this property
         /// EX: /Customers/{0}
         /// </summary>
@@ -151,13 +146,19 @@ namespace Restify {
             return list.Data;
         }
 
-        public virtual bool Create(byte[] stream) {
-            if (string.IsNullOrWhiteSpace(CreateUrl)) {
-                throw new NotImplementedException("The property CreateUrl has no value on the ApiSet.");
+        public virtual bool Create(byte[] stream, string url = "") {
+            var targetUrl = url;
+
+            if (string.IsNullOrWhiteSpace(url)) {
+                if (string.IsNullOrWhiteSpace(CreateUrl)) {
+                    throw new NotImplementedException("The property CreateUrl has no value on the ApiSet.");
+                }
+
+                targetUrl = CreateUrl;
             }
 
             var request = new RestRequest(Method.POST) {
-                Resource = CreateUrl
+                Resource = targetUrl
             };
             request.AddFile("stream", stream, string.Empty);
 
@@ -279,7 +280,7 @@ namespace Restify {
             return response;
         }
 
-        private IRestResponse<S> ExecuteCustomRequest<S>(RestRequest request) where S : new() {
+        private IRestResponse<S> ExecuteCustomRequest<S>(IRestRequest request) where S : new() {
             var client = new RestClient {
                 BaseUrl = _baseUrl
             };
@@ -301,7 +302,7 @@ namespace Restify {
             return response;
         }
 
-        private IRestResponse<List<T>> ExecuteListRequest(RestRequest request) {
+        private IRestResponse<List<T>> ExecuteListRequest(IRestRequest request) {
             var client = new RestClient {
                 BaseUrl = _baseUrl
             };

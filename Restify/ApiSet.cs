@@ -166,14 +166,20 @@ namespace Restify {
             return (int)item.StatusCode < 300;
         }
 
-        public virtual T Create(T entity) {
-            if (string.IsNullOrWhiteSpace(CreateUrl)) {
-                throw new NotImplementedException("The property CreateUrl has no value on the ApiSet.");
+        public virtual T Create(T entity, string url = "") {
+            var targetUrl = url;
+
+            if (string.IsNullOrWhiteSpace(url)) {
+                if (string.IsNullOrWhiteSpace(CreateUrl)) {
+                    throw new NotImplementedException("The property CreateUrl has no value on the ApiSet.");
+                }
+
+                targetUrl = CreateUrl;
             }
 
             var request = new RestRequest(Method.POST) {
-                Timeout = 20000, 
-                Resource = CreateUrl
+                Timeout = 20000,
+                Resource = targetUrl
             };
             request.AddParameter("application/xml", entity.ToXml(), ParameterType.RequestBody);
 
@@ -181,15 +187,21 @@ namespace Restify {
             return item.Data;
         }
 
-        public virtual T Create(T entity, out string requestXml) {
-            if (string.IsNullOrWhiteSpace(CreateUrl)) {
-                throw new NotImplementedException("The property CreateUrl has no value on the ApiSet.");
+        public virtual T Create(T entity, out string requestXml, string url = "") {
+            var targetUrl = url;
+
+            if (string.IsNullOrWhiteSpace(url)) {
+                if (string.IsNullOrWhiteSpace(CreateUrl)) {
+                    throw new NotImplementedException("The property CreateUrl has no value on the ApiSet.");
+                }
+
+                targetUrl = CreateUrl;
             }
 
             requestXml = entity.ToXml();
             var request = new RestRequest(Method.POST) {
-                Timeout = 20000, 
-                Resource = CreateUrl
+                Timeout = 20000,
+                Resource = targetUrl
             };
             request.AddParameter("application/xml", entity.ToXml(), ParameterType.RequestBody);
 

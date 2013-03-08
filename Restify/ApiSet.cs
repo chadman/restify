@@ -147,9 +147,16 @@ namespace Restify {
         }
 
         public virtual bool Create(byte[] stream, string url = "") {
-            var targetUrl = url;
+            var targetUrl = string.Empty;
+            
+            if (!string.IsNullOrWhiteSpace(url)) {
+                if (url.Trim().Length <= _baseUrl.Length) {
+                    throw new Exception("Invalid url: " + url);
+                }
+                targetUrl = url.Substring(_baseUrl.Length);
+            }
 
-            if (string.IsNullOrWhiteSpace(url)) {
+            if (string.IsNullOrWhiteSpace(targetUrl)) {
                 if (string.IsNullOrWhiteSpace(CreateUrl)) {
                     throw new NotImplementedException("The property CreateUrl has no value on the ApiSet.");
                 }
@@ -167,9 +174,16 @@ namespace Restify {
         }
 
         public virtual T Create(T entity, string url = "") {
-            var targetUrl = url;
+            var targetUrl = string.Empty;
 
-            if (string.IsNullOrWhiteSpace(url)) {
+            if (!string.IsNullOrWhiteSpace(url)) {
+                if (url.Trim().Length <= _baseUrl.Length) {
+                    throw new Exception("Invalid url: " + url);
+                }
+                targetUrl = url.Substring(_baseUrl.Length);
+            }
+
+            if (string.IsNullOrWhiteSpace(targetUrl)) {
                 if (string.IsNullOrWhiteSpace(CreateUrl)) {
                     throw new NotImplementedException("The property CreateUrl has no value on the ApiSet.");
                 }
@@ -188,9 +202,16 @@ namespace Restify {
         }
 
         public virtual T Create(T entity, out string requestXml, string url = "") {
-            var targetUrl = url;
+            var targetUrl = string.Empty;
 
-            if (string.IsNullOrWhiteSpace(url)) {
+            if (!string.IsNullOrWhiteSpace(url)) {
+                if (url.Trim().Length <= _baseUrl.Length) {
+                    throw new Exception("Invalid url: " + url);
+                }
+                targetUrl = url.Substring(_baseUrl.Length);
+            }
+
+            if (string.IsNullOrWhiteSpace(targetUrl)) {
                 if (string.IsNullOrWhiteSpace(CreateUrl)) {
                     throw new NotImplementedException("The property CreateUrl has no value on the ApiSet.");
                 }

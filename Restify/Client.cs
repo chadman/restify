@@ -4,6 +4,7 @@ using RestSharp.Contrib;
 using System;
 using System.Linq;
 using System.Net;
+using Restify.Exceptions;
 
 namespace Restify {
     public class Client {
@@ -39,7 +40,11 @@ namespace Restify {
             var response = restClient.Execute(request);
 
             if (response.StatusCode != HttpStatusCode.OK) {
-                throw new Exception(response.StatusDescription);
+                throw new ApiAccessException(response.StatusDescription) {
+                    StatusCode = response.StatusCode,
+                    StatusDescription = response.StatusDescription,
+                    RequestUrl = response.ResponseUri.AbsoluteUri
+                };
             }
             else {
                 return response;
@@ -58,7 +63,11 @@ namespace Restify {
             var response = restClient.Execute(request);
 
             if (response.StatusCode != HttpStatusCode.OK) {
-                throw new Exception(response.StatusDescription);
+                throw new ApiAccessException(response.StatusDescription) {
+                    StatusCode = response.StatusCode,
+                    StatusDescription = response.StatusDescription,
+                    RequestUrl = response.ResponseUri.AbsoluteUri
+                };
             }
             else {
                 var qs = HttpUtility.ParseQueryString(response.Content);

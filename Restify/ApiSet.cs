@@ -67,11 +67,6 @@ namespace Restify {
                 throw new NotImplementedException("The property ListUrl has no value on the ApiSet.");
             }
 
-            var request = new RestRequest(Method.GET) {
-                Resource = ListUrl
-            };
-            var item = ExecuteListRequest(request);
-
             return item.Data;
         }
 

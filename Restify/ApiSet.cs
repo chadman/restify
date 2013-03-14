@@ -73,6 +73,7 @@ namespace Restify {
             var item = ExecuteListRequest(request);
 
             string anotherstring = string.Empty;
+            string xstring2 = string.Empty;
 
             return item.Data;
         }

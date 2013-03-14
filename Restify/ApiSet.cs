@@ -71,10 +71,6 @@ namespace Restify {
                 Resource = ListUrl
             };
             var item = ExecuteListRequest(request);
-
-            string anotherstring = string.Empty;
-            string xstring2 = string.Empty;
-
             return item.Data;
         }
 

@@ -75,6 +75,8 @@ namespace Restify {
             };
             var item = ExecuteListRequest(request);
 
+            string anotherstring = string.Empty;
+
             return item.Data;
         }
 

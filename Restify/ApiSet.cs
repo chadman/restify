@@ -316,7 +316,7 @@ namespace Restify {
             return response;
         }
 
-        private IRestResponse<S> ExecuteCustomRequest<S>(IRestRequest request) where S : new() {
+        protected IRestResponse<S> ExecuteCustomRequest<S>(IRestRequest request) where S : new() {
             var client = new RestClient {
                 BaseUrl = _baseUrl
             };

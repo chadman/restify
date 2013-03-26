@@ -287,6 +287,31 @@ namespace Restify {
             var item = ExecuteRequest(request);
             return (int)item.StatusCode < 300;
         }
+
+        public byte[] GetByteArray(IRestRequest request) {
+            var client = new RestClient {
+                BaseUrl = _baseUrl
+            };
+            request.AddHeader("Accept-Encoding", "gzip,deflate");
+
+            client.Authenticator = OAuth1Authenticator.ForProtectedResource(_ticket.ConsumerKey, _ticket.ConsumerSecret, _ticket.AccessToken, _ticket.AccessTokenSecret);
+            var response = client.Execute(request);
+
+            if ((int)response.StatusCode > 300) {
+                throw new ApiAccessException(response.StatusDescription) {
+                    StatusCode = response.StatusCode,
+                    StatusDescription = response.StatusDescription,
+                    RequestUrl = response.ResponseUri.AbsoluteUri
+                };
+            }
+
+            if (!string.IsNullOrEmpty(response.ErrorMessage)) {
+                throw new ApiAccessException(response.ErrorMessage);
+            }
+
+            return response.RawBytes;
+        }
+
         #endregion Actions
 
         #region Private Methods

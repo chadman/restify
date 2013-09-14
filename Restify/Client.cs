@@ -84,7 +84,38 @@ namespace Restify {
             var request = new RestRequest(requestTokenUrl, Method.POST);
             var response = restClient.Execute(request);
 
-            return null;
+            if (response.StatusCode != HttpStatusCode.OK) {
+                throw new ApiAccessException(response.StatusDescription) {
+                    StatusCode = response.StatusCode,
+                    StatusDescription = response.StatusDescription,
+                    RequestUrl = response.ResponseUri.AbsoluteUri
+                };
+            }
+            else {
+                var qs = HttpUtility.ParseQueryString(response.Content);
+                ticket.AccessToken = qs["oauth_token"];
+                ticket.AccessTokenSecret = qs["oauth_token_secret"];
+                return ticket;
+            }
+        }
+
+        public static IRestResponse GetAccessToken(OAuthTicket ticket, string accessTokenUrl) {
+            var restClient = new RestSharp.RestClient();
+            restClient.Authenticator = OAuth1Authenticator.ForAccessToken(ticket.ConsumerKey, ticket.ConsumerSecret, ticket.AccessToken, ticket.AccessTokenSecret);
+
+            var request = new RestRequest(accessTokenUrl, Method.POST);
+            var response = restClient.Execute(request);
+
+            if (response.StatusCode != HttpStatusCode.OK) {
+                throw new ApiAccessException(response.StatusDescription) {
+                    StatusCode = response.StatusCode,
+                    StatusDescription = response.StatusDescription,
+                    RequestUrl = response.ResponseUri.AbsoluteUri
+                };
+            }
+            else {
+                return response;
+            }
         }
         #endregion Methods
     }

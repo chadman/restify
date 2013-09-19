@@ -99,7 +99,7 @@ namespace Restify {
             }
         }
 
-        public static IRestResponse GetAccessToken(OAuthTicket ticket, string accessTokenUrl) {
+        public static IRestResponse ExchangeRequestToken(OAuthTicket ticket, string accessTokenUrl) {
             var restClient = new RestSharp.RestClient();
             restClient.Authenticator = OAuth1Authenticator.ForAccessToken(ticket.ConsumerKey, ticket.ConsumerSecret, ticket.AccessToken, ticket.AccessTokenSecret);
 

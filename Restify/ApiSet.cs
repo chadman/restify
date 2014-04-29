@@ -10,6 +10,7 @@ namespace Restify {
         #region Properties
         private readonly OAuthTicket _ticket;
         private readonly string _baseUrl;
+        private readonly ContentType _contentType;
 
         /// <summary>
         /// The url for retrieving a specific entity. Call Get(string id) to use this property
@@ -55,9 +56,10 @@ namespace Restify {
         #endregion Properties
 
         #region Constructor
-        protected ApiSet(OAuthTicket ticket, string baseUrl) {
+        protected ApiSet(OAuthTicket ticket, string baseUrl, ContentType contentType) {
             _ticket = ticket;
             _baseUrl = baseUrl;
+            _contentType = contentType;
         }
         #endregion Constructor
 
@@ -67,9 +69,7 @@ namespace Restify {
                 throw new NotImplementedException("The property ListUrl has no value on the ApiSet.");
             }
 
-            var request = new RestRequest(Method.GET) {
-                Resource = ListUrl
-            };
+            var request = CreateRestRequest(Method.GET, ListUrl);
             var item = ExecuteListRequest(request);
 
             string anotherstring = string.Empty;
@@ -83,9 +83,7 @@ namespace Restify {
                 throw new NotImplementedException("The property GetChildListUrl has no value on the ApiSet.");
             }
 
-            var request = new RestRequest(Method.GET) {
-                Resource = string.Format(GetChildListUrl, parentID)
-            };
+            var request = CreateRestRequest(Method.GET, string.Format(GetChildListUrl, parentID));
             var item = ExecuteListRequest(request);
 
             return item.Data;
@@ -95,10 +93,7 @@ namespace Restify {
             if (string.IsNullOrWhiteSpace(GetUrl)) {
                 throw new NotImplementedException("The property GetUrl has no value on the ApiSet.");
             }
-
-            var request = new RestRequest(Method.GET) {
-                Resource = string.Format(GetUrl, id)
-            };
+            var request = CreateRestRequest(Method.GET, string.Format(GetUrl, id));
             var item = ExecuteRequest(request);
 
             return item.Data;
@@ -115,18 +110,14 @@ namespace Restify {
                 throw new NotImplementedException("The property GetChildUrl has no value on the ApiSet.");
             }
 
-            var request = new RestRequest(Method.GET) {
-                Resource = string.Format(GetChildUrl, parentID, id)
-            };
+            var request = CreateRestRequest(Method.GET, string.Format(GetChildUrl, parentID, id));
             var item = ExecuteRequest(request);
 
             return item.Data;
         }
 
         public virtual T GetByUrl(string url) {
-            var request = new RestRequest(Method.GET) {
-                Resource = url.Substring(_baseUrl.Length)
-            };
+            var request = CreateRestRequest(Method.GET, url.Substring(_baseUrl.Length));
             var item = ExecuteRequest(request);
 
             return item.Data;
@@ -136,10 +127,7 @@ namespace Restify {
             if (string.IsNullOrWhiteSpace(SearchUrl)) {
                 throw new NotImplementedException("The property SearchUrl has no value on the ApiSet.");
             }
-
-            var request = new RestRequest(Method.GET) {
-                Resource = SearchUrl
-            };
+            var request = CreateRestRequest(Method.GET, SearchUrl);
 
             foreach (var pair in qo.ToDictionary()) {
                 request.AddParameter(pair.Key, pair.Value);
@@ -167,9 +155,7 @@ namespace Restify {
                 targetUrl = CreateUrl;
             }
 
-            var request = new RestRequest(Method.POST) {
-                Resource = targetUrl
-            };
+            var request = CreateRestRequest(Method.POST, targetUrl);
             request.AddFile("stream", stream, string.Empty);
 
             var item = ExecuteRequest(request);
@@ -193,11 +179,8 @@ namespace Restify {
 
                 targetUrl = CreateUrl;
             }
-
-            var request = new RestRequest(Method.POST) {
-                Timeout = 20000,
-                Resource = targetUrl
-            };
+            var request = CreateRestRequest(Method.POST, targetUrl);
+            request.Timeout = 20000;
             request.AddParameter("application/xml", entity.ToXml(), ParameterType.RequestBody);
 
             var item = ExecuteRequest(request);
@@ -222,11 +205,10 @@ namespace Restify {
                 targetUrl = CreateUrl;
             }
 
+            var request = CreateRestRequest(Method.POST, targetUrl);
+            request.Timeout = 20000;
+
             requestXml = entity.ToXml();
-            var request = new RestRequest(Method.POST) {
-                Timeout = 20000,
-                Resource = targetUrl
-            };
             request.AddParameter("application/xml", entity.ToXml(), ParameterType.RequestBody);
 
             var item = ExecuteRequest(request);
@@ -238,9 +220,7 @@ namespace Restify {
                 throw new NotImplementedException("The property EditUrl has no value on the ApiSet.");
             }
 
-            var request = new RestRequest(Method.PUT) {
-                Resource = string.Format(EditUrl, id)
-            };
+            var request = CreateRestRequest(Method.PUT, string.Format(EditUrl, id));
             request.AddFile("stream", stream, string.Empty);
 
             var item = ExecuteRequest(request);
@@ -252,9 +232,7 @@ namespace Restify {
                 throw new NotImplementedException("The property EditUrl has no value on the ApiSet.");
             }
 
-            var request = new RestRequest(Method.PUT) {
-                Resource = string.Format(EditUrl, id)
-            };
+            var request = CreateRestRequest(Method.PUT, string.Format(EditUrl, id));
             request.AddParameter("application/xml", entity.ToXml(), ParameterType.RequestBody);
 
             var item = ExecuteRequest(request);
@@ -267,9 +245,7 @@ namespace Restify {
             }
 
             requestXml = entity.ToXml();
-            var request = new RestRequest(Method.PUT) {
-                Resource = string.Format(EditUrl, id)
-            };
+            var request = CreateRestRequest(Method.PUT, string.Format(EditUrl, id));
             request.AddParameter("application/xml", entity.ToXml(), ParameterType.RequestBody);
 
             var item = ExecuteRequest(request);
@@ -280,10 +256,7 @@ namespace Restify {
             if (string.IsNullOrWhiteSpace(EditUrl)) {
                 throw new NotImplementedException("The property EditUrl has no value on the ApiSet.");
             }
-
-            var request = new RestRequest(Method.DELETE) {
-                Resource = string.Format(EditUrl, id)
-            };
+            var request = CreateRestRequest(Method.DELETE, string.Format(EditUrl, id));
             var item = ExecuteRequest(request);
             return (int)item.StatusCode < 300;
         }
@@ -319,9 +292,6 @@ namespace Restify {
             var client = new RestClient {
                 BaseUrl = _baseUrl
             };
-            request.RequestFormat = DataFormat.Xml;
-            request.AddHeader("Accept-Encoding", "gzip,deflate");
-            request.AddHeader("Content-Type", "application/xml");
 
             client.Authenticator = OAuth1Authenticator.ForProtectedResource(_ticket.ConsumerKey, _ticket.ConsumerSecret, _ticket.AccessToken, _ticket.AccessTokenSecret);
             var response = client.Execute<T>(request);
@@ -345,9 +315,6 @@ namespace Restify {
             var client = new RestClient {
                 BaseUrl = _baseUrl
             };
-            request.RequestFormat = DataFormat.Xml;
-            request.AddHeader("Accept-Encoding", "gzip,deflate");
-            request.AddHeader("Content-Type", "application/xml");
 
             client.Authenticator = OAuth1Authenticator.ForProtectedResource(_ticket.ConsumerKey, _ticket.ConsumerSecret, _ticket.AccessToken, _ticket.AccessTokenSecret);
             var response = client.Execute<S>(request);
@@ -367,9 +334,6 @@ namespace Restify {
             var client = new RestClient {
                 BaseUrl = _baseUrl
             };
-            request.RequestFormat = DataFormat.Xml;
-            request.AddHeader("Accept-Encoding", "gzip,deflate");
-            request.AddHeader("Content-Type", "application/xml");
 
             client.Authenticator = OAuth1Authenticator.ForProtectedResource(_ticket.ConsumerKey, _ticket.ConsumerSecret, _ticket.AccessToken, _ticket.AccessTokenSecret);
             var response = client.Execute<List<T>>(request);
@@ -383,6 +347,18 @@ namespace Restify {
             }
 
             return response;
+        }
+
+        private RestRequest CreateRestRequest(Method method, string url) {
+
+            var request = new RestRequest(method) {
+                Resource = url
+            };
+            request.RequestFormat = _contentType == ContentType.JSON ? DataFormat.Json : DataFormat.Xml;
+            request.AddHeader("Accept-Encoding", "gzip,deflate");
+            request.AddHeader("Content-Type",  _contentType == ContentType.XML ? "application/xml" : "application/json");
+
+            return request;
         }
         #endregion Private Methods 
     }

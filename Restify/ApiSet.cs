@@ -166,10 +166,15 @@ namespace Restify {
             var targetUrl = string.Empty;
 
             if (!string.IsNullOrWhiteSpace(url)) {
-                if (url.Trim().Length <= _baseUrl.Length) {
-                    throw new Exception("Invalid url: " + url);
+                if (url.Trim().StartsWith(_baseUrl)) {
+                    if (url.Trim().Length <= _baseUrl.Length) {
+                        throw new Exception("Invalid url: " + url);
+                    }
+                    targetUrl = url.Substring(_baseUrl.Length);
                 }
-                targetUrl = url.Substring(_baseUrl.Length);
+                else {
+                    targetUrl = url;
+                }
             }
 
             if (string.IsNullOrWhiteSpace(targetUrl)) {

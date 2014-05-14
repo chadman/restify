@@ -27,15 +27,15 @@ namespace Restify {
                     if (IsRightType(p.PropertyType)) {
                         object value = p.GetValue(this, null);
                         if (value != null && value.ToString() != string.Empty) {// null means the property won't be the part of search parameters
-                            ret.Add(GetKey(p), value.ToString());
-                            //DateTime? d = value as Nullable<DateTime>;
-                            //if (d != null) { // DateTime need special handling for converting to string.
-                            //    string format = GetFormat(p);
-                            //    ret.Add(GetKey(p), d.Value.ToString(format == null ? this.DateTimeFormat : format));
-                            //}
-                            //else {
-                            //    ret.Add(GetKey(p), value.ToString());
-                            //}
+                            //ret.Add(GetKey(p), value.ToString());
+                            DateTime? d = value as Nullable<DateTime>;
+                            if (d != null) { // DateTime need special handling for converting to string.
+                                string format = GetFormat(p);
+                                ret.Add(GetKey(p), d.Value.ToString(format == null ? "yyyy-MM-dd" : format));
+                            }
+                            else {
+                                ret.Add(GetKey(p), value.ToString());
+                            }
                         }
                     }
                     else {

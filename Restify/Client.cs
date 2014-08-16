@@ -5,15 +5,16 @@ using System;
 using System.Linq;
 using System.Net;
 using Restify.Exceptions;
+using System.Collections.Generic;
 
 namespace Restify {
     public class Client {
 
         #region Properties
-
         public OAuthTicket Ticket { get; set; }
         public ContentType ContentType { get; set; }
         public string BaseUrl { get; set; }
+        public IDictionary<string, string> RequestHeaders { get; set; }
 
         #endregion Properties
 
@@ -24,6 +25,11 @@ namespace Restify {
         public Client(OAuthTicket ticket, string baseUrl) {
             this.Ticket = ticket;
             this.BaseUrl = baseUrl;
+        }
+
+        public Client(IDictionary<string, string> requestHeaders, string baseUrl) {
+            this.BaseUrl = BaseUrl;
+            this.RequestHeaders = requestHeaders;
         }
         #endregion Constructor
 

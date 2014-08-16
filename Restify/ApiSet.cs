@@ -11,6 +11,7 @@ namespace Restify {
         private readonly OAuthTicket _ticket;
         private readonly string _baseUrl;
         private readonly ContentType _contentType;
+        private readonly IDictionary<string, string> _requestHeaders;
 
         /// <summary>
         /// The url for retrieving a specific entity. Call Get(string id) to use this property
@@ -58,6 +59,12 @@ namespace Restify {
         #region Constructor
         protected ApiSet(OAuthTicket ticket, string baseUrl, ContentType contentType) {
             _ticket = ticket;
+            _baseUrl = baseUrl;
+            _contentType = contentType;
+        }
+
+        protected ApiSet(IDictionary<string, string> requestHeaders, string baseUrl, ContentType contentType) {
+            _requestHeaders = requestHeaders;
             _baseUrl = baseUrl;
             _contentType = contentType;
         }
@@ -119,6 +126,13 @@ namespace Restify {
         public virtual T GetByUrl(string url) {
             var request = CreateRestRequest(Method.GET, url.Substring(_baseUrl.Length));
             var item = ExecuteRequest(request);
+
+            return item.Data;
+        }
+
+        public virtual S GetBySuffixUrl<S>(string url) where S : new() {
+            var request = CreateRestRequest(Method.GET, url);
+            var item = ExecuteCustomRequest<S>(request);
 
             return item.Data;
         }
@@ -272,7 +286,9 @@ namespace Restify {
             };
             request.AddHeader("Accept-Encoding", "gzip,deflate");
 
-            client.Authenticator = OAuth1Authenticator.ForProtectedResource(_ticket.ConsumerKey, _ticket.ConsumerSecret, _ticket.AccessToken, _ticket.AccessTokenSecret);
+            if (_ticket != null) {
+                client.Authenticator = OAuth1Authenticator.ForProtectedResource(_ticket.ConsumerKey, _ticket.ConsumerSecret, _ticket.AccessToken, _ticket.AccessTokenSecret);
+            }
             var response = client.Execute(request);
 
             if ((int)response.StatusCode > 300) {
@@ -298,7 +314,9 @@ namespace Restify {
                 BaseUrl = _baseUrl
             };
 
-            client.Authenticator = OAuth1Authenticator.ForProtectedResource(_ticket.ConsumerKey, _ticket.ConsumerSecret, _ticket.AccessToken, _ticket.AccessTokenSecret);
+            if (_ticket != null) {
+                client.Authenticator = OAuth1Authenticator.ForProtectedResource(_ticket.ConsumerKey, _ticket.ConsumerSecret, _ticket.AccessToken, _ticket.AccessTokenSecret);
+            }
             var response = client.Execute<T>(request);
 
             if ((int)response.StatusCode > 300) {
@@ -321,7 +339,9 @@ namespace Restify {
                 BaseUrl = _baseUrl
             };
 
-            client.Authenticator = OAuth1Authenticator.ForProtectedResource(_ticket.ConsumerKey, _ticket.ConsumerSecret, _ticket.AccessToken, _ticket.AccessTokenSecret);
+            if (_ticket != null) {
+                client.Authenticator = OAuth1Authenticator.ForProtectedResource(_ticket.ConsumerKey, _ticket.ConsumerSecret, _ticket.AccessToken, _ticket.AccessTokenSecret);
+            }
             var response = client.Execute<S>(request);
 
             if ((int)response.StatusCode > 300) {
@@ -340,7 +360,9 @@ namespace Restify {
                 BaseUrl = _baseUrl
             };
 
-            client.Authenticator = OAuth1Authenticator.ForProtectedResource(_ticket.ConsumerKey, _ticket.ConsumerSecret, _ticket.AccessToken, _ticket.AccessTokenSecret);
+            if (_ticket != null) {
+                client.Authenticator = OAuth1Authenticator.ForProtectedResource(_ticket.ConsumerKey, _ticket.ConsumerSecret, _ticket.AccessToken, _ticket.AccessTokenSecret);
+            }
             var response = client.Execute<List<T>>(request);
 
             if ((int)response.StatusCode > 300) {
@@ -362,6 +384,12 @@ namespace Restify {
             request.RequestFormat = _contentType == ContentType.JSON ? DataFormat.Json : DataFormat.Xml;
             request.AddHeader("Accept-Encoding", "gzip,deflate");
             request.AddHeader("Content-Type",  _contentType == ContentType.XML ? "application/xml" : "application/json");
+
+            if (_requestHeaders != null && _requestHeaders.Count > 0) {
+                foreach (var current in _requestHeaders) {
+                    request.AddHeader(current.Key, current.Value);
+                }
+            }
 
             return request;
         }

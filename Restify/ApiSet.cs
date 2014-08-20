@@ -99,6 +99,13 @@ namespace Restify {
             return item.Data;
         }
 
+        public List<S> ListBySuffixUrl<S>(string url) where S : new() {
+            var request = CreateRestRequest(Method.GET, url);
+            var item = ExecuteCustomRequest<List<S>>(request);
+
+            return item.Data;
+        }
+
         public virtual T Get(string id) {
             if (string.IsNullOrWhiteSpace(GetUrl)) {
                 throw new NotImplementedException("The property GetUrl has no value on the ApiSet.");
@@ -140,6 +147,13 @@ namespace Restify {
             return item.Data;
         }
 
+        public virtual string GetBySuffixUrl(string url) {
+            var request = CreateRestRequest(Method.GET, url);
+            var item = ExecuteGenericRequest(request);
+
+            return item.Content;
+        }
+
         public virtual S Search<S>(QueryObject qo) where S : new() {
             if (string.IsNullOrWhiteSpace(SearchUrl)) {
                 throw new NotImplementedException("The property SearchUrl has no value on the ApiSet.");
@@ -169,37 +183,52 @@ namespace Restify {
             return response;
         }
 
-        public virtual bool Create(System.IO.Stream stream, string url = "", string fileParamaterName = "stream", string fileName = "") {
+        public virtual bool Create(byte[] stream, string url = "") {
             var targetUrl = string.Empty;
-
             if (!string.IsNullOrWhiteSpace(url)) {
                 if (url.Trim().Length <= _baseUrl.Length) {
                     throw new Exception("Invalid url: " + url);
                 }
                 targetUrl = url.Substring(_baseUrl.Length);
             }
-
             if (string.IsNullOrWhiteSpace(targetUrl)) {
                 if (string.IsNullOrWhiteSpace(CreateUrl)) {
                     throw new NotImplementedException("The property CreateUrl has no value on the ApiSet.");
                 }
-
                 targetUrl = CreateUrl;
             }
+            var request = new RestRequest(Method.POST) {
+                Resource = targetUrl
+            };
+            request.AddFile("stream", stream, string.Empty);
+            var item = ExecuteRequest(request);
+            return (int)item.StatusCode < 300;
+        }
 
+        public virtual bool Create(System.IO.Stream stream, string url = "", string fileParamaterName = "stream", string fileName = "") {
+            var targetUrl = string.Empty;
+            if (!string.IsNullOrWhiteSpace(url)) {
+                if (url.Trim().Length <= _baseUrl.Length) {
+                    throw new Exception("Invalid url: " + url);
+                }
+                targetUrl = url.Substring(_baseUrl.Length);
+            }
+            if (string.IsNullOrWhiteSpace(targetUrl)) {
+                if (string.IsNullOrWhiteSpace(CreateUrl)) {
+                    throw new NotImplementedException("The property CreateUrl has no value on the ApiSet.");
+                }
+                targetUrl = CreateUrl;
+            }
             var request = CreateRestRequest(Method.POST, targetUrl, "multipart/form-data");
             request.AddFile(fileParamaterName, ReadToEnd(stream), fileName, GetMIMEType(fileName));
             request.AlwaysMultipartFormData = true;
-
             var client = new RestClient {
                 BaseUrl = _baseUrl
             };
-
             if (_ticket != null) {
                 client.Authenticator = OAuth1Authenticator.ForProtectedResource(_ticket.ConsumerKey, _ticket.ConsumerSecret, _ticket.AccessToken, _ticket.AccessTokenSecret);
             }
             var response = client.Execute(request);
-
             //var item = ExecuteRequest(request);
             return (int)response.StatusCode < 300;
         }

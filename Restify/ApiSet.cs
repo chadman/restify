@@ -81,10 +81,6 @@ namespace Restify {
 
             var request = CreateRestRequest(Method.GET, ListUrl);
             var item = ExecuteListRequest(request);
-
-            string anotherstring = string.Empty;
-            string xstring2 = string.Empty;
-
             return item.Data;
         }
 
@@ -205,7 +201,7 @@ namespace Restify {
             return (int)item.StatusCode < 300;
         }
 
-        public virtual bool Create(System.IO.Stream stream, string url = "", string fileParamaterName = "stream", string fileName = "") {
+        public virtual T Create(byte[] stream, string url = "", string fileParamaterName = "stream", string fileName = "") {
             var targetUrl = string.Empty;
             if (!string.IsNullOrWhiteSpace(url)) {
                 if (url.Trim().Length <= _baseUrl.Length) {
@@ -219,18 +215,11 @@ namespace Restify {
                 }
                 targetUrl = CreateUrl;
             }
-            var request = CreateRestRequest(Method.POST, targetUrl, "multipart/form-data");
-            request.AddFile(fileParamaterName, ReadToEnd(stream), fileName, GetMIMEType(fileName));
-            request.AlwaysMultipartFormData = true;
-            var client = new RestClient {
-                BaseUrl = _baseUrl
-            };
-            if (_ticket != null) {
-                client.Authenticator = OAuth1Authenticator.ForProtectedResource(_ticket.ConsumerKey, _ticket.ConsumerSecret, _ticket.AccessToken, _ticket.AccessTokenSecret);
-            }
-            var response = client.Execute(request);
-            //var item = ExecuteRequest(request);
-            return (int)response.StatusCode < 300;
+            var request = CreateRestRequest(Method.POST, targetUrl);
+            request.AddFile(fileParamaterName, stream, fileName);
+
+            var response = this.ExecuteRequest(request);
+            return response.Data;
         }
 
         public virtual bool Create<S>(S entity, string url = "") where S : new() {
@@ -325,7 +314,12 @@ namespace Restify {
             request.Timeout = 20000;
 
             requestXml = entity.ToXml();
-            request.AddParameter("application/xml", entity.ToXml(), ParameterType.RequestBody);
+            if (_contentType == ContentType.XML) {
+                request.AddParameter("application/xml", entity.ToXml(), ParameterType.RequestBody);
+            }
+            else if (_contentType == ContentType.JSON) {
+                request.AddParameter("application/json", Newtonsoft.Json.JsonConvert.SerializeObject(entity), ParameterType.RequestBody);
+            }
 
             var item = ExecuteRequest(request);
             return item.Data;
@@ -349,7 +343,12 @@ namespace Restify {
             }
 
             var request = CreateRestRequest(Method.PUT, string.Format(EditUrl, id));
-            request.AddParameter("application/xml", entity.ToXml(), ParameterType.RequestBody);
+            if (_contentType == ContentType.XML) {
+                request.AddParameter("application/xml", entity.ToXml(), ParameterType.RequestBody);
+            }
+            else if (_contentType == ContentType.JSON) {
+                request.AddParameter("application/json", Newtonsoft.Json.JsonConvert.SerializeObject(entity), ParameterType.RequestBody);
+            }
 
             var item = ExecuteRequest(request);
             return item.Data;
@@ -362,7 +361,12 @@ namespace Restify {
 
             requestXml = entity.ToXml();
             var request = CreateRestRequest(Method.PUT, string.Format(EditUrl, id));
-            request.AddParameter("application/xml", entity.ToXml(), ParameterType.RequestBody);
+            if (_contentType == ContentType.XML) {
+                request.AddParameter("application/xml", entity.ToXml(), ParameterType.RequestBody);
+            }
+            else if (_contentType == ContentType.JSON) {
+                request.AddParameter("application/json", Newtonsoft.Json.JsonConvert.SerializeObject(entity), ParameterType.RequestBody);
+            }
 
             var item = ExecuteRequest(request);
             return item.Data;

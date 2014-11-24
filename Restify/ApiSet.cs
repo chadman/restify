@@ -71,6 +71,11 @@ namespace Restify {
             _baseUrl = baseUrl;
             _contentType = contentType;
         }
+
+        protected ApiSet(string baseUrl, ContentType contentType) {
+            _baseUrl = baseUrl;
+            _contentType = contentType;
+        }
         #endregion Constructor
 
         #region Actions

@@ -172,9 +172,7 @@ namespace Restify {
         public virtual IRestResponse Post(string url) {
             var request = CreateRestRequest(Method.POST, url);
 
-            var client = new RestClient {
-                BaseUrl = _baseUrl
-            };
+            var client = new RestClient(_baseUrl);
 
             if (_ticket != null) {
                 client.Authenticator = OAuth1Authenticator.ForProtectedResource(_ticket.ConsumerKey, _ticket.ConsumerSecret, _ticket.AccessToken, _ticket.AccessTokenSecret);
@@ -387,9 +385,7 @@ namespace Restify {
         }
 
         public byte[] GetByteArray(IRestRequest request) {
-            var client = new RestClient {
-                BaseUrl = _baseUrl
-            };
+            var client = new RestClient(_baseUrl);
             request.AddHeader("Accept-Encoding", "gzip,deflate");
 
             if (_ticket != null) {
@@ -416,9 +412,7 @@ namespace Restify {
 
         #region Private Methods
         private IRestResponse<T> ExecuteRequest(IRestRequest request) {
-            var client = new RestClient {
-                BaseUrl = _baseUrl
-            };
+            var client = new RestClient(_baseUrl);
 
             if (_ticket != null) {
                 client.Authenticator = OAuth1Authenticator.ForProtectedResource(_ticket.ConsumerKey, _ticket.ConsumerSecret, _ticket.AccessToken, _ticket.AccessTokenSecret);
@@ -441,9 +435,7 @@ namespace Restify {
         }
 
         protected IRestResponse ExecuteGenericRequest(IRestRequest request) {
-            var client = new RestClient {
-                BaseUrl = _baseUrl
-            };
+            var client = new RestClient(_baseUrl);
 
             if (_ticket != null) {
                 client.Authenticator = OAuth1Authenticator.ForProtectedResource(_ticket.ConsumerKey, _ticket.ConsumerSecret, _ticket.AccessToken, _ticket.AccessTokenSecret);
@@ -462,9 +454,7 @@ namespace Restify {
         }
 
         protected IRestResponse<S> ExecuteCustomRequest<S>(IRestRequest request) where S : new() {
-            var client = new RestClient {
-                BaseUrl = _baseUrl
-            };
+            var client = new RestClient(_baseUrl);
 
             if (_ticket != null) {
                 client.Authenticator = OAuth1Authenticator.ForProtectedResource(_ticket.ConsumerKey, _ticket.ConsumerSecret, _ticket.AccessToken, _ticket.AccessTokenSecret);
@@ -483,9 +473,7 @@ namespace Restify {
         }
 
         private IRestResponse<List<T>> ExecuteListRequest(IRestRequest request) {
-            var client = new RestClient {
-                BaseUrl = _baseUrl
-            };
+            var client = new RestClient(_baseUrl);
 
             if (_ticket != null) {
                 client.Authenticator = OAuth1Authenticator.ForProtectedResource(_ticket.ConsumerKey, _ticket.ConsumerSecret, _ticket.AccessToken, _ticket.AccessTokenSecret);

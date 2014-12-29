@@ -13,6 +13,7 @@ namespace Restify {
         private readonly string _baseUrl;
         private readonly ContentType _contentType;
         private readonly IDictionary<string, string> _requestHeaders;
+        private IDictionary<string, string> _parameters = new Dictionary<string, string>();
 
         public string BaseUrl { get { return _baseUrl; } }
 
@@ -408,6 +409,9 @@ namespace Restify {
             return response.RawBytes;
         }
 
+        public void AddParameter(string key, string value) {
+            this._parameters.Add(new KeyValuePair<string, string>(key, value));
+        }
         #endregion Actions
 
         #region Private Methods
@@ -503,6 +507,12 @@ namespace Restify {
             if (_requestHeaders != null && _requestHeaders.Count > 0) {
                 foreach (var current in _requestHeaders) {
                     request.AddHeader(current.Key, current.Value);
+                }
+            }
+
+            if (_parameters != null && _parameters.Count > 0) {
+                foreach (var current in _parameters) {
+                    request.AddParameter(current.Key, current.Value);
                 }
             }
 

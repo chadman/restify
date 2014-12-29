@@ -5,10 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Restify.Exceptions {
-    public class GerenicException : ApplicationException {
-        public GerenicException() { }
-        public GerenicException(string message) : base(message) { }
-        public GerenicException(string message, Exception inner) : base(message, inner) { }
+    public class GenericException : ApplicationException {
+        public GenericException() { }
+        public GenericException(string message) : base(message) { }
+        public GenericException(string message, Exception inner) : base(message, inner) { }
 
         #region Properties
         public string RequestUrl { get; set; }
@@ -18,7 +18,7 @@ namespace Restify.Exceptions {
         #endregion Properties
     }
 
-    public class ApiAccessException : GerenicException {
+    public class ApiAccessException : GenericException {
         public ApiAccessException() { }
         public ApiAccessException(string message) : base(message) { }
         public ApiAccessException(string message, Exception inner) : base(message, inner) { }

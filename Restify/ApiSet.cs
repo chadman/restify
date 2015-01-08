@@ -495,7 +495,7 @@ namespace Restify {
             return response;
         }
 
-        private RestRequest CreateRestRequest(Method method, string url, string contentType = null) {
+        public RestRequest CreateRestRequest(Method method, string url, string contentType = null) {
 
             var request = new RestRequest(method) {
                 Resource = url

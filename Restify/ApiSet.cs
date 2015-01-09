@@ -385,28 +385,52 @@ namespace Restify {
             return (int)item.StatusCode < 300;
         }
 
-        public byte[] GetByteArray(IRestRequest request) {
-            var client = new RestClient(_baseUrl);
-            request.AddHeader("Accept-Encoding", "gzip,deflate");
-
-            if (_ticket != null) {
-                client.Authenticator = OAuth1Authenticator.ForProtectedResource(_ticket.ConsumerKey, _ticket.ConsumerSecret, _ticket.AccessToken, _ticket.AccessTokenSecret);
-            }
-            var response = client.Execute(request);
-
-            if ((int)response.StatusCode > 300) {
-                throw new ApiAccessException(response.StatusDescription) {
-                    StatusCode = response.StatusCode,
-                    StatusDescription = response.StatusDescription,
-                    RequestUrl = response.ResponseUri.AbsoluteUri
-                };
+        public byte[] GetByteArray(string url) {
+                   System.Net.HttpWebRequest _HttpWebRequest = (System.Net.HttpWebRequest)System.Net.HttpWebRequest.Create(_baseUrl + url);
+	 
+	        _HttpWebRequest.AllowWriteStreamBuffering = true;
+            if (_requestHeaders != null && _requestHeaders.Count > 0) {
+                foreach (var current in _requestHeaders) {
+                    if (current.Key == "User-Agent") {
+                        _HttpWebRequest.UserAgent = current.Value;
+                    }
+                    else {
+                        _HttpWebRequest.Headers.Add(current.Key, current.Value);
+                    }
+                }
             }
 
-            if (!string.IsNullOrEmpty(response.ErrorMessage)) {
-                throw new ApiAccessException(response.ErrorMessage);
+	        // set timeout for 20 seconds (Optional)
+	        _HttpWebRequest.Timeout = 20000;
+	 
+	        // Request response:
+	        System.Net.WebResponse _WebResponse = _HttpWebRequest.GetResponse();
+	 
+	        // Open data stream:
+	        System.IO.Stream _WebStream = _WebResponse.GetResponseStream();
+
+            using (var memoryStream = new MemoryStream()) {
+                _WebStream.CopyTo(memoryStream);
+                return memoryStream.ToArray();
             }
 
-            return response.RawBytes;
+            //var request = CreateRestRequest(Method.GET, url);
+            //var response = ExecuteGenericRequest(request);
+
+            //if ((int)response.StatusCode > 300) {
+            //    throw new ApiAccessException(response.StatusDescription) {
+            //        StatusCode = response.StatusCode,
+            //        StatusDescription = response.StatusDescription,
+            //        RequestUrl = response.ResponseUri.AbsoluteUri
+            //    };
+            //}
+
+            //if (!string.IsNullOrEmpty(response.ErrorMessage)) {
+            //    throw new ApiAccessException(response.ErrorMessage);
+            //}
+
+            //return response.RawBytes;
+            return null;
         }
 
         public void AddParameter(string key, string value) {

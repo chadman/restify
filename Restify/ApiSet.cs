@@ -250,13 +250,13 @@ namespace Restify {
             }
             var request = CreateRestRequest(Method.POST, targetUrl);
             request.Timeout = 20000;
-
-            if (_contentType == ContentType.XML) {
-                request.AddParameter("application/xml", entity.ToXml(), ParameterType.RequestBody);
-            }
-            else if (_contentType == ContentType.JSON) {
+            if (_contentType == ContentType.JSON) {
                 request.AddParameter("application/json", Newtonsoft.Json.JsonConvert.SerializeObject(entity), ParameterType.RequestBody);
             }
+            else {
+                request.AddBody(entity);
+            }
+
             var item = ExecuteRequest(request);
             return (int)item.StatusCode < 300;
         }
@@ -285,18 +285,19 @@ namespace Restify {
             }
             var request = CreateRestRequest(Method.POST, targetUrl);
             request.Timeout = 20000;
-
-            if (_contentType == ContentType.XML) {
-                request.AddParameter("application/xml", entity.ToXml(), ParameterType.RequestBody);
-            }
-            else if (_contentType == ContentType.JSON) {
+            if (_contentType == ContentType.JSON) {
                 request.AddParameter("application/json", Newtonsoft.Json.JsonConvert.SerializeObject(entity), ParameterType.RequestBody);
             }
+            else {
+                request.AddBody(entity);
+            }
+
             var item = ExecuteRequest(request);
             return item.Data;
         }
 
         public virtual T Create(T entity, out string requestXml, string url = "") {
+            requestXml = entity.ToXml();
             var targetUrl = string.Empty;
 
             if (!string.IsNullOrWhiteSpace(url)) {
@@ -316,13 +317,11 @@ namespace Restify {
 
             var request = CreateRestRequest(Method.POST, targetUrl);
             request.Timeout = 20000;
-
-            requestXml = entity.ToXml();
-            if (_contentType == ContentType.XML) {
-                request.AddParameter("application/xml", entity.ToXml(), ParameterType.RequestBody);
-            }
-            else if (_contentType == ContentType.JSON) {
+            if (_contentType == ContentType.JSON) {
                 request.AddParameter("application/json", Newtonsoft.Json.JsonConvert.SerializeObject(entity), ParameterType.RequestBody);
+            }
+            else {
+                request.AddBody(entity);
             }
 
             var item = ExecuteRequest(request);
@@ -347,11 +346,11 @@ namespace Restify {
             }
 
             var request = CreateRestRequest(Method.PUT, string.Format(EditUrl, id));
-            if (_contentType == ContentType.XML) {
-                request.AddParameter("application/xml", entity.ToXml(), ParameterType.RequestBody);
-            }
-            else if (_contentType == ContentType.JSON) {
+            if (_contentType == ContentType.JSON) {
                 request.AddParameter("application/json", Newtonsoft.Json.JsonConvert.SerializeObject(entity), ParameterType.RequestBody);
+            }
+            else {
+                request.AddBody(entity);
             }
 
             var item = ExecuteRequest(request);
@@ -365,11 +364,11 @@ namespace Restify {
 
             requestXml = entity.ToXml();
             var request = CreateRestRequest(Method.PUT, string.Format(EditUrl, id));
-            if (_contentType == ContentType.XML) {
-                request.AddParameter("application/xml", entity.ToXml(), ParameterType.RequestBody);
-            }
-            else if (_contentType == ContentType.JSON) {
+            if (_contentType == ContentType.JSON) {
                 request.AddParameter("application/json", Newtonsoft.Json.JsonConvert.SerializeObject(entity), ParameterType.RequestBody);
+            }
+            else {
+                request.AddBody(entity);
             }
 
             var item = ExecuteRequest(request);
@@ -413,24 +412,6 @@ namespace Restify {
                 _WebStream.CopyTo(memoryStream);
                 return memoryStream.ToArray();
             }
-
-            //var request = CreateRestRequest(Method.GET, url);
-            //var response = ExecuteGenericRequest(request);
-
-            //if ((int)response.StatusCode > 300) {
-            //    throw new ApiAccessException(response.StatusDescription) {
-            //        StatusCode = response.StatusCode,
-            //        StatusDescription = response.StatusDescription,
-            //        RequestUrl = response.ResponseUri.AbsoluteUri
-            //    };
-            //}
-
-            //if (!string.IsNullOrEmpty(response.ErrorMessage)) {
-            //    throw new ApiAccessException(response.ErrorMessage);
-            //}
-
-            //return response.RawBytes;
-            return null;
         }
 
         public void AddParameter(string key, string value) {

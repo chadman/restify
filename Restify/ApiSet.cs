@@ -250,11 +250,11 @@ namespace Restify {
             }
             var request = CreateRestRequest(Method.POST, targetUrl);
             request.Timeout = 20000;
-            if (_contentType == ContentType.JSON) {
-                request.AddParameter("application/json", Newtonsoft.Json.JsonConvert.SerializeObject(entity), ParameterType.RequestBody);
+            if (_contentType == ContentType.XML) {
+                request.AddParameter("application/xml", entity.ToXml(), ParameterType.RequestBody);
             }
-            else {
-                request.AddBody(entity);
+            else if (_contentType == ContentType.JSON) {
+                request.AddParameter("application/json", Newtonsoft.Json.JsonConvert.SerializeObject(entity), ParameterType.RequestBody);
             }
 
             var item = ExecuteRequest(request);
@@ -285,11 +285,11 @@ namespace Restify {
             }
             var request = CreateRestRequest(Method.POST, targetUrl);
             request.Timeout = 20000;
-            if (_contentType == ContentType.JSON) {
-                request.AddParameter("application/json", Newtonsoft.Json.JsonConvert.SerializeObject(entity), ParameterType.RequestBody);
+            if (_contentType == ContentType.XML) {
+                request.AddParameter("application/xml", entity.ToXml(), ParameterType.RequestBody);
             }
-            else {
-                request.AddBody(entity);
+            else if (_contentType == ContentType.JSON) {
+                request.AddParameter("application/json", Newtonsoft.Json.JsonConvert.SerializeObject(entity), ParameterType.RequestBody);
             }
 
             var item = ExecuteRequest(request);
@@ -317,11 +317,11 @@ namespace Restify {
 
             var request = CreateRestRequest(Method.POST, targetUrl);
             request.Timeout = 20000;
-            if (_contentType == ContentType.JSON) {
-                request.AddParameter("application/json", Newtonsoft.Json.JsonConvert.SerializeObject(entity), ParameterType.RequestBody);
+            if (_contentType == ContentType.XML) {
+                request.AddParameter("application/xml", entity.ToXml(), ParameterType.RequestBody);
             }
-            else {
-                request.AddBody(entity);
+            else if (_contentType == ContentType.JSON) {
+                request.AddParameter("application/json", Newtonsoft.Json.JsonConvert.SerializeObject(entity), ParameterType.RequestBody);
             }
 
             var item = ExecuteRequest(request);
@@ -346,11 +346,11 @@ namespace Restify {
             }
 
             var request = CreateRestRequest(Method.PUT, string.Format(EditUrl, id));
-            if (_contentType == ContentType.JSON) {
-                request.AddParameter("application/json", Newtonsoft.Json.JsonConvert.SerializeObject(entity), ParameterType.RequestBody);
+            if (_contentType == ContentType.XML) {
+                request.AddParameter("application/xml", entity.ToXml(), ParameterType.RequestBody);
             }
-            else {
-                request.AddBody(entity);
+            else if (_contentType == ContentType.JSON) {
+                request.AddParameter("application/json", Newtonsoft.Json.JsonConvert.SerializeObject(entity), ParameterType.RequestBody);
             }
 
             var item = ExecuteRequest(request);
@@ -364,11 +364,11 @@ namespace Restify {
 
             requestXml = entity.ToXml();
             var request = CreateRestRequest(Method.PUT, string.Format(EditUrl, id));
-            if (_contentType == ContentType.JSON) {
-                request.AddParameter("application/json", Newtonsoft.Json.JsonConvert.SerializeObject(entity), ParameterType.RequestBody);
+            if (_contentType == ContentType.XML) {
+                request.AddParameter("application/xml", entity.ToXml(), ParameterType.RequestBody);
             }
-            else {
-                request.AddBody(entity);
+            else if (_contentType == ContentType.JSON) {
+                request.AddParameter("application/json", Newtonsoft.Json.JsonConvert.SerializeObject(entity), ParameterType.RequestBody);
             }
 
             var item = ExecuteRequest(request);

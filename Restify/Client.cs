@@ -83,8 +83,8 @@ namespace Restify {
             }
         }
 
-        public static OAuthTicket GetRequestToken(OAuthTicket ticket, string callback, string requestTokenUrl) {
-            var restClient = new RestSharp.RestClient();
+        public static OAuthTicket GetRequestToken(OAuthTicket ticket, string callback, string requestTokenUrl, string baseUrl) {
+            var restClient = new RestSharp.RestClient(baseUrl);
             restClient.Authenticator = OAuth1Authenticator.ForRequestToken(ticket.ConsumerKey, ticket.ConsumerSecret, callback);
 
             var request = new RestRequest(requestTokenUrl, Method.POST);
@@ -105,8 +105,8 @@ namespace Restify {
             }
         }
 
-        public static IRestResponse ExchangeRequestToken(OAuthTicket ticket, string accessTokenUrl) {
-            var restClient = new RestSharp.RestClient();
+        public static IRestResponse ExchangeRequestToken(OAuthTicket ticket, string baseurl, string accessTokenUrl) {
+            var restClient = new RestSharp.RestClient(baseurl);
             restClient.Authenticator = OAuth1Authenticator.ForAccessToken(ticket.ConsumerKey, ticket.ConsumerSecret, ticket.AccessToken, ticket.AccessTokenSecret);
 
             var request = new RestRequest(accessTokenUrl, Method.POST);
@@ -124,8 +124,8 @@ namespace Restify {
             }
         }
 
-        public static IRestResponse ExchangeRequestToken(OAuthTicket ticket, string accessTokenUrl, string additionalParamters = null) {
-            var restClient = new RestSharp.RestClient();
+        public static IRestResponse ExchangeRequestToken(OAuthTicket ticket, string baseurl, string accessTokenUrl, string additionalParamters = null) {
+            var restClient = new RestSharp.RestClient(baseurl);
             restClient.Authenticator = OAuth1Authenticator.ForAccessToken(ticket.ConsumerKey, ticket.ConsumerSecret, ticket.AccessToken, ticket.AccessTokenSecret);
             var request = new RestRequest(accessTokenUrl, Method.POST);
 

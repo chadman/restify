@@ -5,6 +5,7 @@ using Restify.Extensions;
 using RestSharp;
 using RestSharp.Authenticators;
 using System.IO;
+using System.Linq;
 
 namespace Restify {
     public abstract class ApiSet<T> where T : new() {
@@ -422,18 +423,28 @@ namespace Restify {
         #region Private Methods
         private IRestResponse<T> ExecuteRequest(IRestRequest request) {
             var client = new RestClient(_baseUrl);
+            client.FollowRedirects = false;
 
             if (_ticket != null) {
                 client.Authenticator = OAuth1Authenticator.ForProtectedResource(_ticket.ConsumerKey, _ticket.ConsumerSecret, _ticket.AccessToken, _ticket.AccessTokenSecret);
             }
             var response = client.Execute<T>(request);
 
-            if ((int)response.StatusCode > 300) {
+            if ((int)response.StatusCode > 400) {
                 throw new ApiAccessException(response.StatusDescription) {
                     StatusCode = response.StatusCode,
                     StatusDescription = response.StatusDescription,
                     RequestUrl = response.ResponseUri.AbsoluteUri
                 };
+            }
+
+            if ((int)response.StatusCode >= 300) {
+                var location = response.Headers.SingleOrDefault(x => x.Name == "Location");
+
+                if (location != null) {
+                    request = CreateRestRequest(Method.GET, location.Value.ToString().Substring(_baseUrl.Length));
+                    response = ExecuteRequest(request);
+                }
             }
 
             if (!string.IsNullOrEmpty(response.ErrorMessage)) {
@@ -445,6 +456,7 @@ namespace Restify {
 
         protected IRestResponse ExecuteGenericRequest(IRestRequest request) {
             var client = new RestClient(_baseUrl);
+            client.FollowRedirects = false;
 
             if (_ticket != null) {
                 client.Authenticator = OAuth1Authenticator.ForProtectedResource(_ticket.ConsumerKey, _ticket.ConsumerSecret, _ticket.AccessToken, _ticket.AccessTokenSecret);
@@ -464,6 +476,7 @@ namespace Restify {
 
         protected IRestResponse<S> ExecuteCustomRequest<S>(IRestRequest request) where S : new() {
             var client = new RestClient(_baseUrl);
+            client.FollowRedirects = false;
 
             if (_ticket != null) {
                 client.Authenticator = OAuth1Authenticator.ForProtectedResource(_ticket.ConsumerKey, _ticket.ConsumerSecret, _ticket.AccessToken, _ticket.AccessTokenSecret);
@@ -483,6 +496,7 @@ namespace Restify {
 
         private IRestResponse<List<T>> ExecuteListRequest(IRestRequest request) {
             var client = new RestClient(_baseUrl);
+            client.FollowRedirects = false;
 
             if (_ticket != null) {
                 client.Authenticator = OAuth1Authenticator.ForProtectedResource(_ticket.ConsumerKey, _ticket.ConsumerSecret, _ticket.AccessToken, _ticket.AccessTokenSecret);
@@ -501,7 +515,6 @@ namespace Restify {
         }
 
         public RestRequest CreateRestRequest(Method method, string url, string contentType = null) {
-
             var request = new RestRequest(method) {
                 Resource = url
             };

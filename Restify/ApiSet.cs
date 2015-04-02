@@ -386,9 +386,9 @@ namespace Restify {
         }
 
         public byte[] GetByteArray(string url) {
-                   System.Net.HttpWebRequest _HttpWebRequest = (System.Net.HttpWebRequest)System.Net.HttpWebRequest.Create(_baseUrl + url);
-	 
-	        _HttpWebRequest.AllowWriteStreamBuffering = true;
+            System.Net.HttpWebRequest _HttpWebRequest = (System.Net.HttpWebRequest)System.Net.HttpWebRequest.Create(_baseUrl + url);
+
+            _HttpWebRequest.AllowWriteStreamBuffering = true;
             if (_requestHeaders != null && _requestHeaders.Count > 0) {
                 foreach (var current in _requestHeaders) {
                     if (current.Key == "User-Agent") {
@@ -400,14 +400,14 @@ namespace Restify {
                 }
             }
 
-	        // set timeout for 20 seconds (Optional)
-	        _HttpWebRequest.Timeout = 20000;
-	 
-	        // Request response:
-	        System.Net.WebResponse _WebResponse = _HttpWebRequest.GetResponse();
-	 
-	        // Open data stream:
-	        System.IO.Stream _WebStream = _WebResponse.GetResponseStream();
+            // set timeout for 20 seconds (Optional)
+            _HttpWebRequest.Timeout = 20000;
+
+            // Request response:
+            System.Net.WebResponse _WebResponse = _HttpWebRequest.GetResponse();
+
+            // Open data stream:
+            System.IO.Stream _WebStream = _WebResponse.GetResponseStream();
 
             using (var memoryStream = new MemoryStream()) {
                 _WebStream.CopyTo(memoryStream);
@@ -421,7 +421,7 @@ namespace Restify {
         #endregion Actions
 
         #region Private Methods
-        private IRestResponse<T> ExecuteRequest(IRestRequest request) {
+        internal IRestResponse<T> ExecuteRequest(IRestRequest request) {
             var client = new RestClient(_baseUrl);
             client.FollowRedirects = false;
 
@@ -454,7 +454,7 @@ namespace Restify {
             return response;
         }
 
-        protected IRestResponse ExecuteGenericRequest(IRestRequest request) {
+        internal IRestResponse ExecuteGenericRequest(IRestRequest request) {
             var client = new RestClient(_baseUrl);
             client.FollowRedirects = false;
 
@@ -474,7 +474,7 @@ namespace Restify {
             return response;
         }
 
-        protected IRestResponse<S> ExecuteCustomRequest<S>(IRestRequest request) where S : new() {
+        internal IRestResponse<S> ExecuteCustomRequest<S>(IRestRequest request) where S : new() {
             var client = new RestClient(_baseUrl);
             client.FollowRedirects = false;
 
@@ -494,7 +494,7 @@ namespace Restify {
             return response;
         }
 
-        private IRestResponse<List<T>> ExecuteListRequest(IRestRequest request) {
+        internal IRestResponse<List<T>> ExecuteListRequest(IRestRequest request) {
             var client = new RestClient(_baseUrl);
             client.FollowRedirects = false;
 
@@ -777,6 +777,6 @@ namespace Restify {
             }
             return "unknown/unknown";
         }
-    }
         #endregion Private Methods
+    }
 }

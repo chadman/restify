@@ -57,8 +57,8 @@ namespace Restify {
             }
         }
 
-        public static OAuthTicket AuthorizeWithCredentials(OAuthTicket ticket, string username, string password, string authorizeUrl) {
-            var restClient = new RestSharp.RestClient();
+        public static OAuthTicket AuthorizeWithCredentials(OAuthTicket ticket, string username, string password, string baseUrl, string authorizeUrl) {
+            var restClient = new RestSharp.RestClient(baseUrl);
             restClient.Authenticator = OAuth1Authenticator.ForClientAuthentication(ticket.ConsumerKey, ticket.ConsumerSecret, username, password);
 
             var request = new RestRequest(authorizeUrl, Method.POST);

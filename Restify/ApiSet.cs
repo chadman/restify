@@ -454,7 +454,7 @@ namespace Restify {
             return response;
         }
 
-        internal IRestResponse ExecuteGenericRequest(IRestRequest request) {
+        protected IRestResponse ExecuteGenericRequest(IRestRequest request) {
             var client = new RestClient(_baseUrl);
             client.FollowRedirects = false;
 
@@ -474,7 +474,7 @@ namespace Restify {
             return response;
         }
 
-        internal IRestResponse<S> ExecuteCustomRequest<S>(IRestRequest request) where S : new() {
+        protected IRestResponse<S> ExecuteCustomRequest<S>(IRestRequest request) where S : new() {
             var client = new RestClient(_baseUrl);
             client.FollowRedirects = false;
 
@@ -494,7 +494,7 @@ namespace Restify {
             return response;
         }
 
-        internal IRestResponse<List<T>> ExecuteListRequest(IRestRequest request) {
+        protected IRestResponse<List<T>> ExecuteListRequest(IRestRequest request) {
             var client = new RestClient(_baseUrl);
             client.FollowRedirects = false;
 

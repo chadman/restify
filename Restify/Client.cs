@@ -35,7 +35,7 @@ namespace Restify {
 
         #region Methods
         public virtual IRestResponse AuthorizeFirstParty(OAuthTicket ticket, string username, string password, string authorizeUrl) {
-            var restClient = new RestSharp.RestClient();
+            var restClient = new RestSharp.RestClient(this.BaseUrl);
             restClient.Authenticator = OAuth1Authenticator.ForClientAuthentication(ticket.ConsumerKey, ticket.ConsumerSecret, username, password);
 
             var request = new RestRequest(authorizeUrl, Method.POST);

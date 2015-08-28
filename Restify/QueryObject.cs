@@ -34,7 +34,7 @@ namespace Restify {
                                 ret.Add(GetKey(p), d.Value.ToString(format == null ? "yyyy-MM-dd" : format));
                             }
                             else {
-                                ret.Add(GetKey(p), value.ToString());
+                                ret.Add(GetKey(p), value.ToString().ToLower());
                             }
                         }
                     }

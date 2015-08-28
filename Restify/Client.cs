@@ -1,11 +1,11 @@
 ﻿using RestSharp;
 using RestSharp.Authenticators;
-using RestSharp.Contrib;
 using System;
 using System.Linq;
 using System.Net;
 using Restify.Exceptions;
 using System.Collections.Generic;
+using RestSharp.Extensions.MonoHttp;
 
 namespace Restify {
     public class Client {
@@ -149,7 +149,7 @@ namespace Restify {
                 };
             }
             else {
-                var qs = HttpUtility.ParseQueryString(response.Content);
+                var qs = RestSharp.Extensions.MonoHttp.HttpUtility.ParseQueryString(response.Content);
                 ticket.AccessToken = qs["oauth_token"];
                 ticket.AccessTokenSecret = qs["oauth_token_secret"];
 

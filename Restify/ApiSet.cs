@@ -484,7 +484,7 @@ namespace Restify {
             var response = client.Execute<S>(request);
 
             if ((int)response.StatusCode > 300) {
-                throw new ApiAccessException(response.StatusDescription) {
+                throw new ApiAccessException(response.ErrorException.Message) {
                     StatusCode = response.StatusCode,
                     StatusDescription = response.StatusDescription,
                     RequestUrl = response.ResponseUri.AbsoluteUri

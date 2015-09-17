@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Restify", "Restify\Restify.csproj", "{1F97B86F-D2E6-43F4-9595-D01859A357D7}"
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiftytwoProjects.Restify", "Restify\FiftytwoProjects.Restify.csproj", "{1F97B86F-D2E6-43F4-9595-D01859A357D7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Restify.Tests", "Restify.Tests\Restify.Tests.csproj", "{BB44844F-1B18-4E0C-8C29-3128C396D50C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiftytwoProjects.Restify.Tests", "Restify.Tests\FiftytwoProjects.Restify.Tests.csproj", "{BB44844F-1B18-4E0C-8C29-3128C396D50C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{7F8902E5-22DF-4B3F-AED5-0D2BCA3E5619}"
 	ProjectSection(SolutionItems) = preProject

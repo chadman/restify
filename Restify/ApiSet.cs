@@ -385,6 +385,12 @@ namespace Restify {
             return (int)item.StatusCode < 300;
         }
 
+		public byte[] GetByteArrayProtected(string url) {
+			var request = CreateRestRequest(Method.GET, url);
+			var response = ExecuteGenericRequest(request);
+			return response.RawBytes;
+		}
+
         public byte[] GetByteArray(string url) {
             System.Net.HttpWebRequest _HttpWebRequest = (System.Net.HttpWebRequest)System.Net.HttpWebRequest.Create(_baseUrl + url);
 
